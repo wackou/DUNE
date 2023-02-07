@@ -2,6 +2,9 @@ import os
 import platform
 import subprocess
 
+class docker_error(Exception):
+    pass
+
 
 class docker:
 
@@ -66,21 +69,39 @@ class docker:
     def get_image(self):
         return self._image
 
-    def execute_docker_cmd(self, cmd):
+    @staticmethod
+    def print_streams(stdout, stderr):
+        print('======== STDOUT ========')
+        print(stdout)
+        print('======== STDERR ========')
+        print(stderr)
+        print('========================')
+
+    def execute_docker_cmd(self, cmd, *, check_status=True):
         with subprocess.Popen(['docker'] + cmd,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
             stdout, stderr = proc.communicate()
+            stdout = stdout.decode('utf-8')
+            stderr = stderr.decode('utf-8')
+            status = proc.returncode
+
             if self._cl_args.debug:
                 print('docker '+' '.join(cmd))
-                print(stdout.decode('UTF-8'))
-                print(stderr.decode('UTF-8'))
-        return [stdout.decode('UTF-8'), stderr.decode('UTF-8'), proc.poll()]
+                self.print_streams(stdout, stderr)
+
+        if check_status and status != 0:
+            # some error happened, log it and fail
+            print(f'ERROR: docker {cmd}  -- returned: {status}')
+            self.print_streams(stdout, stderr)
+            raise docker_error
+
+        return (stdout, stderr, status)
 
     def file_exists(self, file_name):
-        return self.execute_cmd(['test', '-f', file_name])[2] == 0
+        return self.execute_cmd(['test', '-f', file_name], check_status=False)[2] == 0
 
     def dir_exists(self, directory):
-        return self.execute_cmd(['test', '-d', directory])[2] == 0
+        return self.execute_cmd(['test', '-d', directory], check_status=False)[2] == 0
 
     def tar_dir(self, file_name, directory):
         return self.execute_cmd(['tar', 'cvzf', file_name + '.tgz', directory])

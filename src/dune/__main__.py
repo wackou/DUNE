@@ -4,6 +4,7 @@ import importlib.util
 
 from args import arg_parser
 from args import parse_optional
+from docker import docker_error
 from dune import dune
 from dune import dune_error
 from dune import dune_node_not_found
@@ -258,6 +259,6 @@ if __name__ == '__main__':
         except dune_node_not_found as err:
             print('Node not found [' + err.name() + ']', file=sys.stderr)
             sys.exit(1)
-        except dune_error as err:
+        except (dune_error, docker_error) as err:
             print("Internal Error", file=sys.stderr)
             sys.exit(1)
