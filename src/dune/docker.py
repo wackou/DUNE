@@ -151,19 +151,23 @@ class docker:
                                self._container] + cmd) as proc:
             proc.communicate()
 
-    def execute_cmd(self, cmd):
-        return self.execute_docker_cmd(
-            ['container', 'exec', self._container] + cmd)
+    def execute_cmd(self, cmd, *, interactive=False, colors=False, **kwargs):
+        d = ['container', 'exec']
+        if interactive:
+            d += ['-i']
+        if colors:
+            d += ['-t', '-e', 'TERM=xterm-256color']
+        d += [self._container]
+        return self.execute_docker_cmd(d + cmd, **kwargs)
 
     def execute_interactive_cmd(self, cmd):
+        return self.execute_cmd(cmd, interactive=True)
         with subprocess.Popen(['docker', 'container',
                                'exec', '-i', self._container] + cmd) as proc:
             proc.communicate()
 
     def execute_cmd2(self, cmd):
-        with subprocess.Popen(['docker', 'container',
-                               'exec', self._container] + cmd) as proc:
-            proc.communicate()
+        return self.execute_cmd(cmd, check_status=False, colors=True)
 
     def execute_bg_cmd(self, cmd):
         return self.execute_cmd(cmd + ['&'])
