@@ -71,23 +71,42 @@ class docker:
 
     @staticmethod
     def print_streams(stdout, stderr):
+        if stdout is None and stderr is None:
+            print('!! No stdout/stderr info captured...')
+            return
+
         print('======== STDOUT ========')
         print(stdout)
         print('======== STDERR ========')
         print(stderr)
         print('========================')
 
-    def execute_docker_cmd(self, cmd, *, check_status=True):
-        with subprocess.Popen(['docker'] + cmd,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
-            stdout, stderr = proc.communicate()
-            stdout = stdout.decode('utf-8')
-            stderr = stderr.decode('utf-8')
-            status = proc.returncode
+    def execute_docker_cmd(self, cmd, *, check_status=True, capture_output=True):
+        """Execute the given docker command in the active container.
 
-            if self._cl_args.debug:
-                print('docker '+' '.join(cmd))
-                self.print_streams(stdout, stderr)
+        :param check_status: if command has a return code != 0 then raise an exception
+        :param capture_output: whether to capture stdout and stderr and return them or to
+                               print the streams normally
+        :return: (stdout, stderr, status_code) if captured, (None, None, status_code) otherwise
+        """
+        if capture_output:
+            with subprocess.Popen(['docker'] + cmd,
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
+                stdout, stderr = proc.communicate()
+                stdout = stdout.decode('utf-8')
+                stderr = stderr.decode('utf-8')
+                status = proc.returncode
+
+        else:
+            with subprocess.Popen(['docker'] + cmd) as proc:
+                proc.communicate()
+                stdout = None
+                stderr = None
+                status = proc.returncode
+
+        if self._cl_args.debug:
+            print('docker '+' '.join(cmd))
+            self.print_streams(stdout, stderr)
 
         if check_status and status != 0:
             # some error happened, log it and fail
@@ -166,8 +185,9 @@ class docker:
                                'exec', '-i', self._container] + cmd) as proc:
             proc.communicate()
 
+    # execute and show stdout/stderr output instead of capturing it
     def execute_cmd2(self, cmd):
-        return self.execute_cmd(cmd, check_status=False, colors=True)
+        return self.execute_cmd(cmd, check_status=False, colors=True, capture_output=False)
 
     def execute_bg_cmd(self, cmd):
         return self.execute_cmd(cmd + ['&'])
