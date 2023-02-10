@@ -171,13 +171,13 @@ class docker:
             proc.communicate()
 
     def execute_cmd(self, cmd, *, interactive=False, colors=False, **kwargs):
-        d = ['container', 'exec']
+        docker_cmd = ['container', 'exec']
         if interactive:
-            d += ['-i']
+            docker_cmd += ['-i']
         if colors:
-            d += ['-t', '-e', 'TERM=xterm-256color']
-        d += [self._container]
-        return self.execute_docker_cmd(d + cmd, **kwargs)
+            docker_cmd += ['-t', '-e', 'TERM=xterm-256color']
+        docker_cmd += [self._container]
+        return self.execute_docker_cmd(docker_cmd + cmd, **kwargs)
 
     def execute_interactive_cmd(self, cmd):
         return self.execute_cmd(cmd, interactive=True)
