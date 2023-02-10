@@ -180,10 +180,10 @@ class docker:
         return self.execute_docker_cmd(docker_cmd + cmd, **kwargs)
 
     def execute_interactive_cmd(self, cmd):
-        return self.execute_cmd(cmd, interactive=True)
-        with subprocess.Popen(['docker', 'container',
-                               'exec', '-i', self._container] + cmd) as proc:
-            proc.communicate()
+        # with subprocess.Popen(['docker', 'container',
+        #                        'exec', '-i', self._container] + cmd) as proc:
+        #     proc.communicate()
+        return self.execute_cmd(cmd, interactive=True, capture_output=False)
 
     # execute and show stdout/stderr output instead of capturing it
     def execute_cmd2(self, cmd):
