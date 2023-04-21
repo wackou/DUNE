@@ -80,6 +80,8 @@ class arg_parser:
                                   help='Import a private key into development wallet.')
         self._parser.add_argument('--create-key', action='store_true',
                                   help='Create a public key - private key pair.')
+        self._parser.add_argument('--export-private-keys', action='store_true',
+                                  help='export the private keys from the internal development wallet')
         self._parser.add_argument('--export-wallet', action='store_true',
                                   help='Export the development wallet.')
         self._parser.add_argument('--import-wallet', metavar="<DIR>",

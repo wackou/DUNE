@@ -444,6 +444,11 @@ class dunes:
         stdout, stderr, exit_code = self.cleos_cmd(['create', 'key', '--to-console'])
         return stdout
 
+    def export_private_keys(self):
+        self.unlock_wallet()
+        stdout, stderr, status = self.cleos_cmd(['wallet', 'private_keys', '--password', self.get_wallet_pw()])
+        print(stdout)
+
     def export_wallet(self):
         self._docker.execute_cmd(['mkdir', '/app/_wallet'])
         self._docker.execute_cmd(['cp', '-R', '/root/eosio-wallet/', '/app/_wallet/eosio-wallet'])

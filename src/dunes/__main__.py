@@ -187,6 +187,9 @@ if __name__ == '__main__':
             elif args.monitor:
                 dunes_sys.monitor()
 
+            elif args.export_private_keys:
+                dunes_sys.export_private_keys()
+
             elif args.export_wallet:
                 dunes_sys.export_wallet()
 
