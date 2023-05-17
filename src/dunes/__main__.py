@@ -227,10 +227,10 @@ if __name__ == '__main__':
 
                 if (len(args.system_newaccount) > 4
                     or (WAS_REMAINDER_ARGS_USED
-                        and len(args.system_newaccount) < 4)):
+                        and len(args.system_newaccount) < 1)):
                     parser.exit_with_help_message("--system-newaccount has invalid arguments\n")
                 if WAS_REMAINDER_ARGS_USED:
-                    dunes_sys.system_newaccount(*args.system_newaccount, commands)
+                    dunes_sys.system_newaccount(*args.system_newaccount, additional_args=commands)
                 else:
                     dunes_sys.system_newaccount(*args.system_newaccount)
 

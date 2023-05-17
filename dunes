@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
 
 SDIR=$(dirname "$(readlink -f "$0")")
-python3 $SDIR/src/dunes "$@"
+VENV_DIR=~/.virtualenvs/DUNE
+if [ -d "$VENV_DIR" ]; then
+    /bin/python3 $SDIR/src/dunes "$@"
+else
+    python3 $SDIR/src/dunes "$@"
+fi
